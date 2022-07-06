@@ -1,0 +1,42 @@
+{
+  "components": [
+    {
+      "text": "### Выберите вид пиццы:",
+      "type": "text",
+      "id": "Field_0ludzdo"
+    },
+    {
+      "values": [
+        {
+          "value": "Три сыра",
+          "label": "Три сыра"
+        },
+        {
+          "label": "8 островов",
+          "value": "8 островов"
+        },
+        {
+          "label": "Ананасовая",
+          "value": "Ананасовая"
+        }
+      ],
+      "label": "Select",
+      "type": "select",
+      "id": "Field_1q7or6t",
+      "key": "pizza_type",
+      "defaultValue": "Три сыра",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "Form_1la2qh1",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.0.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.17.0",
+  "schemaVersion": 4
+}

@@ -1,0 +1,18 @@
+{
+  "components": [
+    {
+      "text": "### Подтверждение готовности пиццы.",
+      "type": "text",
+      "id": "Field_08buqnd"
+    }
+  ],
+  "type": "default",
+  "id": "bake_pizza",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.0.0"
+  },
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.17.0",
+  "schemaVersion": 4
+}
