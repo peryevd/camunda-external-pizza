@@ -19,8 +19,8 @@
     <bpmn:startEvent id="pizza_start" name="Hungry for Pizza">
       <bpmn:outgoing>Flow_1tntutu</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:intermediateCatchEvent id="PizzaReceivedMsg" name="Pizza received" camunda:asyncBefore="true" camunda:asyncAfter="true">
-      <bpmn:incoming>Flow_0qc1flh</bpmn:incoming>
+    <bpmn:intermediateCatchEvent id="PizzaReceivedMsg" name="Pizza received">
+      <bpmn:incoming>Flow_1tueqvg</bpmn:incoming>
       <bpmn:outgoing>Flow_0xd66f1</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_014hz8v" messageRef="Message_2m6s5uj" />
     </bpmn:intermediateCatchEvent>
@@ -51,21 +51,22 @@
       <bpmn:incoming>Flow_0db90ix</bpmn:incoming>
       <bpmn:outgoing>Flow_0ot4o91</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:eventBasedGateway id="Gateway_event_based" camunda:asyncBefore="true">
-      <bpmn:incoming>Flow_1h6aujn</bpmn:incoming>
-      <bpmn:incoming>Flow_13cud27</bpmn:incoming>
-      <bpmn:outgoing>Flow_0qc1flh</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0kqg2fq</bpmn:outgoing>
-    </bpmn:eventBasedGateway>
-    <bpmn:sequenceFlow id="Flow_0qc1flh" sourceRef="Gateway_event_based" targetRef="PizzaReceivedMsg" />
-    <bpmn:sequenceFlow id="Flow_0kqg2fq" sourceRef="Gateway_event_based" targetRef="Event_0timer" />
     <bpmn:intermediateCatchEvent id="Event_0timer" name="60 Minutes">
-      <bpmn:incoming>Flow_0kqg2fq</bpmn:incoming>
+      <bpmn:incoming>Flow_0z25ff2</bpmn:incoming>
       <bpmn:outgoing>Flow_1jua44x</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0ysy2ge">
         <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">0/10 * * * * ?</bpmn:timeCycle>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_1tueqvg" sourceRef="Gateway_event_based" targetRef="PizzaReceivedMsg" />
+    <bpmn:sequenceFlow id="Flow_0z25ff2" sourceRef="Gateway_event_based" targetRef="Event_0timer" />
+    <bpmn:eventBasedGateway id="Gateway_event_based" camunda:asyncBefore="true" camunda:exclusive="false">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_1h6aujn</bpmn:incoming>
+      <bpmn:incoming>Flow_13cud27</bpmn:incoming>
+      <bpmn:outgoing>Flow_1tueqvg</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0z25ff2</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
   </bpmn:process>
   <bpmn:process id="pizza_vendor" isExecutable="true">
     <bpmn:laneSet id="LaneSet_1r68edy">
@@ -87,15 +88,31 @@
     <bpmn:sequenceFlow id="Flow_1tgf997" sourceRef="CreatePizzaMsg" targetRef="Gateway_1" />
     <bpmn:sequenceFlow id="Flow_1hef05b" sourceRef="Gateway_1" targetRef="AskPizzaMsg" />
     <bpmn:sequenceFlow id="Flow_10txy1s" sourceRef="AskPizzaMsg" targetRef="calm_customer" />
-    <bpmn:startEvent id="CreatePizzaMsg" name="Order Received">
-      <bpmn:outgoing>Flow_1tgf997</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0spvqel" messageRef="Message_1d2l7di" />
-    </bpmn:startEvent>
-    <bpmn:parallelGateway id="Gateway_1" camunda:asyncBefore="true" camunda:asyncAfter="true">
-      <bpmn:incoming>Flow_1tgf997</bpmn:incoming>
-      <bpmn:outgoing>Flow_1hef05b</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1yc2x00</bpmn:outgoing>
-    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_18r1rqv" sourceRef="calm_customer" targetRef="AskPizzaMsg" />
+    <bpmn:sequenceFlow id="Flow_1yc2x00" sourceRef="Gateway_1" targetRef="bake_the_pizza" />
+    <bpmn:sequenceFlow id="Flow_0etm6ms" sourceRef="bake_the_pizza" targetRef="deliver_pizza" />
+    <bpmn:sequenceFlow id="Flow_03r5q69" sourceRef="deliver_pizza" targetRef="Activity_1jo4ryf" />
+    <bpmn:sequenceFlow id="Flow_1qo44a9" sourceRef="Activity_1jo4ryf" targetRef="Event_1cavor5" />
+    <bpmn:serviceTask id="calm_customer" name="Calm Customer" camunda:type="external" camunda:topic="Calm_Customer">
+      <bpmn:incoming>Flow_10txy1s</bpmn:incoming>
+      <bpmn:outgoing>Flow_18r1rqv</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Activity_1jo4ryf" name="Receive Payment" camunda:formKey="camunda-forms:deployment:payment_receive.form">
+      <bpmn:incoming>Flow_03r5q69</bpmn:incoming>
+      <bpmn:outgoing>Flow_1qo44a9</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="deliver_pizza" name="Deliver the Pizza" camunda:asyncBefore="true" camunda:exclusive="false" camunda:type="external" camunda:topic="DeliverPizza">
+      <bpmn:incoming>Flow_0etm6ms</bpmn:incoming>
+      <bpmn:outgoing>Flow_03r5q69</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="bake_the_pizza" name="Bake the Pizza" camunda:formKey="camunda-forms:deployment:bake_pizza.form">
+      <bpmn:incoming>Flow_1yc2x00</bpmn:incoming>
+      <bpmn:outgoing>Flow_0etm6ms</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_1cavor5">
+      <bpmn:incoming>Flow_1qo44a9</bpmn:incoming>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_1rpv0o8" />
+    </bpmn:endEvent>
     <bpmn:intermediateCatchEvent id="AskPizzaMsg" name="&#34;Where is my Pizza?&#34;">
       <bpmn:extensionElements />
       <bpmn:incoming>Flow_1hef05b</bpmn:incoming>
@@ -103,31 +120,15 @@
       <bpmn:outgoing>Flow_10txy1s</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0nhkot6" messageRef="Message_0e2vo5g" />
     </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_18r1rqv" sourceRef="calm_customer" targetRef="AskPizzaMsg" />
-    <bpmn:sequenceFlow id="Flow_1yc2x00" sourceRef="Gateway_1" targetRef="bake_the_pizza" />
-    <bpmn:sequenceFlow id="Flow_0etm6ms" sourceRef="bake_the_pizza" targetRef="deliver_pizza" />
-    <bpmn:sequenceFlow id="Flow_03r5q69" sourceRef="deliver_pizza" targetRef="Activity_1jo4ryf" />
-    <bpmn:sequenceFlow id="Flow_1qo44a9" sourceRef="Activity_1jo4ryf" targetRef="Event_1cavor5" />
-    <bpmn:endEvent id="Event_1cavor5">
-      <bpmn:incoming>Flow_1qo44a9</bpmn:incoming>
-      <bpmn:terminateEventDefinition id="TerminateEventDefinition_1rpv0o8" />
-    </bpmn:endEvent>
-    <bpmn:userTask id="bake_the_pizza" name="Bake the Pizza" camunda:asyncBefore="true" camunda:formKey="camunda-forms:deployment:bake_pizza.form">
-      <bpmn:incoming>Flow_1yc2x00</bpmn:incoming>
-      <bpmn:outgoing>Flow_0etm6ms</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:serviceTask id="deliver_pizza" name="Deliver the Pizza" camunda:asyncBefore="true" camunda:asyncAfter="true" camunda:type="external" camunda:topic="DeliverPizza">
-      <bpmn:incoming>Flow_0etm6ms</bpmn:incoming>
-      <bpmn:outgoing>Flow_03r5q69</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:userTask id="Activity_1jo4ryf" name="Receive Payment" camunda:formKey="camunda-forms:deployment:payment_receive.form">
-      <bpmn:incoming>Flow_03r5q69</bpmn:incoming>
-      <bpmn:outgoing>Flow_1qo44a9</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:serviceTask id="calm_customer" name="Calm Customer" camunda:type="external" camunda:topic="Calm_Customer">
-      <bpmn:incoming>Flow_10txy1s</bpmn:incoming>
-      <bpmn:outgoing>Flow_18r1rqv</bpmn:outgoing>
-    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_1">
+      <bpmn:incoming>Flow_1tgf997</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hef05b</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1yc2x00</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:startEvent id="CreatePizzaMsg" name="Order Received">
+      <bpmn:outgoing>Flow_1tgf997</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0spvqel" messageRef="Message_1d2l7di" />
+    </bpmn:startEvent>
   </bpmn:process>
   <bpmn:message id="Message_1d2l7di" name="CreatePizzaMsg" />
   <bpmn:message id="Message_2m6s5uj" name="PizzaReceivedMsg" />
@@ -150,26 +151,17 @@
         <di:waypoint x="968" y="160" />
         <di:waypoint x="1020" y="160" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0qc1flh_di" bpmnElement="Flow_0qc1flh">
-        <di:waypoint x="665" y="160" />
-        <di:waypoint x="932" y="160" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_13cud27_di" bpmnElement="Flow_13cud27">
         <di:waypoint x="880" y="240" />
         <di:waypoint x="910" y="240" />
         <di:waypoint x="910" y="310" />
-        <di:waypoint x="600" y="310" />
-        <di:waypoint x="600" y="160" />
+        <di:waypoint x="580" y="310" />
+        <di:waypoint x="580" y="160" />
         <di:waypoint x="615" y="160" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1jua44x_di" bpmnElement="Flow_1jua44x">
         <di:waypoint x="728" y="240" />
         <di:waypoint x="780" y="240" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0kqg2fq_di" bpmnElement="Flow_0kqg2fq">
-        <di:waypoint x="640" y="185" />
-        <di:waypoint x="640" y="240" />
-        <di:waypoint x="692" y="240" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1h6aujn_di" bpmnElement="Flow_1h6aujn">
         <di:waypoint x="550" y="160" />
@@ -183,22 +175,27 @@
         <di:waypoint x="258" y="160" />
         <di:waypoint x="300" y="160" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1tueqvg_di" bpmnElement="Flow_1tueqvg">
+        <di:waypoint x="640" y="135" />
+        <di:waypoint x="640" y="110" />
+        <di:waypoint x="950" y="110" />
+        <di:waypoint x="950" y="142" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0z25ff2_di" bpmnElement="Flow_0z25ff2">
+        <di:waypoint x="640" y="185" />
+        <di:waypoint x="640" y="240" />
+        <di:waypoint x="692" y="240" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0s2mh1c_di" bpmnElement="pizza_start">
         <dc:Bounds x="222" y="142" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="199" y="185" width="83" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1fsksfh_di" bpmnElement="Event_0timer">
-        <dc:Bounds x="692" y="222" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="683" y="265" width="55" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ef2g49_di" bpmnElement="PizzaReceivedMsg">
         <dc:Bounds x="932" y="142" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="914" y="118" width="72" height="14" />
+          <dc:Bounds x="850" y="153" width="72" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1n6ci98_di" bpmnElement="Event_1n6ci98">
@@ -206,9 +203,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1320" y="185" width="80" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0z14emh_di" bpmnElement="Gateway_event_based">
-        <dc:Bounds x="615" y="135" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0qe1jcc_di" bpmnElement="select_pizza">
         <dc:Bounds x="300" y="120" width="100" height="80" />
@@ -224,6 +218,15 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1dfslsm_di" bpmnElement="Activity_1q2kt96">
         <dc:Bounds x="1180" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1fsksfh_di" bpmnElement="Event_0timer">
+        <dc:Bounds x="692" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="683" y="265" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1i0dpbs_di" bpmnElement="Gateway_event_based">
+        <dc:Bounds x="615" y="135" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Participant_0pttkvb_di" bpmnElement="Participant_0pttkvb" isHorizontal="true">
         <dc:Bounds x="160" y="448" width="1030" height="432" />
