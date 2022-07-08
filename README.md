@@ -8,3 +8,6 @@
 
 #### Run external service:
  - ```node pizza.js```
+
+#### Info:
+ - On deploy, need specify buisnessKey - "aBusinessKey"  
