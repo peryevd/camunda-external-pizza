@@ -1,4 +1,22 @@
 {
+  "name": "camunda-external-pizza",
+  "version": "1.0.0",
+  "description": "- Ubuntu 20.04 - Running Camunda 7.17 - Camunda Modeler v.5.0.0(for deploy .bpmn) or another variant deploying",
+  "main": "pizza.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peryevd/camunda-external-pizza.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/peryevd/camunda-external-pizza/issues"
+  },
+  "homepage": "https://github.com/peryevd/camunda-external-pizza#readme",
   "dependencies": {
     "axios": "^0.27.2",
     "camunda-external-task-client-js": "^2.2.0"
